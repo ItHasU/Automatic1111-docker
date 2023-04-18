@@ -16,11 +16,16 @@ RUN groupadd --gid $USER_GID $USERNAME \
 # Switch to the default user.
 USER $USERNAME
 
-# Global scripts
-WORKDIR /home/${USERNAME}}
-ENV COMMANDLINE_ARGS="--skip-torch-cuda-test"
-COPY install.sh .
-RUN bash install.sh
+# Clone repository
+RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git /home/${USERNAME}/stable-diffusion-webui
+WORKDIR /home/${USERNAME}/stable-diffusion-webui
+
+# Remove Cuda dependencies
+RUN mkdir venv
+RUN python3 -m venv venv
+RUN . venv/bin/activate
 
 EXPOSE 7860
-ENTRYPOINT [ "stable-diffusion-webui/webui.sh" ]
+ENV COMMANDLINE_ARGS="--skip-torch-cuda-test --precision full --no-half --use-cpu SD GFPGAN BSRGAN ESRGAN SCUNet --all --api"
+ENV TORCH_COMMAND="pip install torch==1.13.1 torchvision==0.14.1"
+ENTRYPOINT [ "/home/webui/stable-diffusion-webui/webui.sh" ]
