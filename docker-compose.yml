@@ -1,0 +1,14 @@
+services:
+  webui:
+    build: .
+    volumes:
+      - ./models/Stable-Diffusion:/home/webui/stable-diffusion-webui/models/Stable-diffusion
+    ports:
+      - 7860:7860
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
